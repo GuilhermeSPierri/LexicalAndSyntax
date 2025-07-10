@@ -3,7 +3,7 @@
 <declaracoes> ::= <dcl_const> <dcl_var> <dcl_procs> 
 
 <dcl_const> ::= const <tipo_pre_def> id "=" <constante> ";" <dcl_const>
-<dcl_const> ::= &
+<dcl_const> ::= &   
 
 <dcl_var> ::= var <lid> ":" <tipo> ";" <dcl_var> 
 <dcl_var> ::= &

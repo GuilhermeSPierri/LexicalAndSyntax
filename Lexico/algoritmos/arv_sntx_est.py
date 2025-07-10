@@ -29,11 +29,6 @@ class Arv_Sntx_Est:
         for nodo in todos_nodos:
             if nodo.left == None and nodo.right == None and nodo.posicao is not None:
                 followpos_global[nodo.posicao] = nodo.followpos
-        #print("followpos", followpos_global)
-        print("=== DEBUG criar_AFD ===")
-        print("aceitacao_pos =", aceitacao_pos)
-        print("postfix tokens (pos→simbolo):", pos_to_simbol)
-        print("root.firstpos =", self.raiz.firstpos)
 
         # inicializar DFA
         S0 = frozenset(self.raiz.firstpos)  # Estado inicial
@@ -64,9 +59,6 @@ class Arv_Sntx_Est:
                     marcado[U_frozen] = False
                     Dtran[U_frozen] = {}
                     Dstates.append(U_frozen)
-        
-        print("todos os estados (objetos frozenset):", list(marcado.keys()))
-        print("estados de aceitação (frozensets):", [s for s in marcado if aceitacao_pos in s])
 
         # identificar estados de aceitação
         estados_aceitacao = {estado for estado in marcado if aceitacao_pos in estado}

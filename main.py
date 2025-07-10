@@ -18,55 +18,47 @@ import ast
 import re
 
 def processar_entrada(er_text, def_text, teste_text):
-    print("[DEBUG] Iniciando processar_entrada")
     operacoes = {"|","*",".","+","?"}
     afds_defs = []
     afds_ers = []
 
     # Processar ERs
-    print("[DEBUG] Processando ERs")
     for i, linha in enumerate(er_text.splitlines()):
-        print(f"[DEBUG] ER linha {i+1}: {linha}")
         linha = linha.strip().replace(" ", "")
         if ':' in linha:
             pos = linha.find(":")
             nome = linha[:pos]
             exp_reg = linha[pos+1:].strip()
-            print(f"[DEBUG] Processando ER '{nome}': {exp_reg}")
-            
+        
             alfabeto = gerar_alfabeto(exp_reg, operacoes)
-            print(f"[DEBUG] Alfabeto para {nome}: {alfabeto}")
             
             exp_reg_obj = Exp_Reg(exp_reg, alfabeto, operacoes)
             arv = criar_arvore(exp_reg_obj)
             afd = arv.criar_AFD()
             afd.nome = nome
             afds_ers.append(afd)
-            print(f"[DEBUG] AFD para {nome} criado com {len(afd.transicoes)} transições")
 
     # Processar DEFs
-    print("[DEBUG] Processando DEFs")
     for i, linha in enumerate(def_text.splitlines()):
-        print(f"[DEBUG] DEF linha {i+1}: {linha}")
         linha = linha.strip().replace(" ", "")
         if ':' in linha:
-            pos = linha.find(":")
+            if linha[0] == linha[1] == ':':
+                pos = 1
+            elif linha[0] == ':' and linha[1] == '=':
+                pos = 2
+            else:
+                pos = linha.find(":")
             nome = linha[:pos]
+
             def_reg = linha[pos+1:].strip()
-            print(f"[DEBUG] Processando DEF '{nome}': {def_reg}")
-            
-            exp_reg = formatar_def_reg(def_reg)
-            print(f"[DEBUG] DEF formatada: {exp_reg}")
-            
+            exp_reg = formatar_def_reg(def_reg)           
             alfabeto = gerar_alfabeto(exp_reg, operacoes)
-            print(f"[DEBUG] Alfabeto para {nome}: {alfabeto}")
             
             exp_reg_obj = Exp_Reg(exp_reg, alfabeto, operacoes)
             arv = criar_arvore(exp_reg_obj)
             afd = arv.criar_AFD()
             afd.nome = nome
             afds_defs.append(afd)
-            print(f"[DEBUG] AFD para {nome} criado com {len(afd.transicoes)} transições")
 
     # União dos AFDs
     print("[DEBUG] União dos AFDs de ERs")
@@ -96,8 +88,6 @@ def processar_entrada(er_text, def_text, teste_text):
         "fim","se","entao","senao","enquanto","faca","repita","ate",
         "leia","escreva","ou","e","nao","falso","verdadeiro"
     ]
-
-    print(f"[DEBUG] Padrão de tokenização: {token_pattern}")
     
     for num_linha, linha in enumerate(teste_text.splitlines()):
         linha = linha.strip()
@@ -105,26 +95,20 @@ def processar_entrada(er_text, def_text, teste_text):
         if not linha:
             continue
         
-        print(f"[DEBUG] Processando linha {num_linha+1}: {linha}")
         tokens_linha = re.findall(token_pattern, linha)
-        print(f"[DEBUG] Tokens encontrados: {tokens_linha}")
         
         for token_str in tokens_linha:
-            print(f"[DEBUG] Processando token: '{token_str}'")
             
             # 1. Testar primeiro no AFD de ERs (mais específico)
-            print(f"[DEBUG] Testando token '{token_str}' no AFD ER")
             pertence_er, afd_er_copy = testar_word(afd_ersFinal, token_str)
             
             if pertence_er:
                 estado_final = afd_er_copy.estado_atual
                 token_tipo = afd_er_copy.mapa_estados_finais.get(estado_final)
-                tokens.append(f"<('{token_str}','{token_tipo}')>")
+                tokens.append(f"<('{token_tipo}','{token_str}')>")
                 posicoes.append(num_linha+1)
-                print(f"[DEBUG] Token reconhecido como ER: {token_str} -> {token_tipo}")
             else:
                 # 2. Se não for ER, testar no AFD de DEFs
-                print(f"[DEBUG] Testando token '{token_str}' no AFD DEF")
                 pertence_def, afd_def_copy = testar_word(afd_defsFinal, token_str)
                 
                 if pertence_def:
@@ -133,9 +117,8 @@ def processar_entrada(er_text, def_text, teste_text):
                     token_tipo = afd_def_copy.mapa_estados_finais.get(estado_final)
                     if token_str in keywords:
                         token_tipo = token_str
-                    tokens.append(f"<('{token_str}','{token_tipo}')>")
+                    tokens.append(f"<('{token_tipo}','{token_str}')>")
                     posicoes.append(num_linha+1)
-                    print(f"[DEBUG] Token reconhecido como DEF: {token_str} -> {token_tipo}")
 
     tabela = criar_tabela_simbolos(tokens, posicoes)
     
@@ -152,25 +135,29 @@ def realizar_analise_sintatica():
         for line in file:
             line = line.replace('<', '').replace('>', '')
             tup = ast.literal_eval(line.strip())
-            tokens.append(tup)
-
-    print("Tokens para análise sintática:", tokens)
-
+            token_type, lexeme = tup
+            if token_type != '' and lexeme != '':
+                tokens.append(tup)
+    tokens.append(('$', '$'))
+    
     analisador = SyntaxAnalyzerSLR()
-    analisador.load_grammar("teste.txt")  # Arquivo com a gramática
+    analisador.load_grammar("grammar.txt")  # Arquivo com a gramática
     analisador.compute_first()
     analisador.compute_follow()
     analisador.build_canonical_collection()
     analisador.build_slr_table()
-    resultado = analisador.parse(tokens)
 
-    print("First:", analisador.first_sets)
-    print("Follow:", analisador.follow_sets)
+    sucesso = True
+    try:
+        analisador.parse(tokens)
+    except Exception as e:
+        sucesso = False
+
     return {
-        "first": analisador.first_sets,
-        "follow": analisador.follow_sets,
-        "resultado": resultado
-    }
+    "first": analisador.first_sets,
+    "follow": analisador.follow_sets,
+    "resultado": sucesso
+}
 
 if __name__ == "__main__":
 

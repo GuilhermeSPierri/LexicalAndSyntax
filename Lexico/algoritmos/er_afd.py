@@ -14,7 +14,6 @@ def criar_arvore(exp_reg: Exp_Reg) -> Arv_Sntx_Est:
         token = exp_reg.post[i]
 
         if token.startswith("\\"):
-            # token é algo como "\." ou "\a" etc.
             simbolo_literal = token[1:]
             folha = Nodo.criar_folha(
                 simbolo_literal,

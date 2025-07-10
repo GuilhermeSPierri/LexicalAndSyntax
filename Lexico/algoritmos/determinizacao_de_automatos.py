@@ -119,9 +119,6 @@ def determinizacao_de_automato(afnd: Automato) -> Automato:
         destino = obter_nome(trans.estado2)
         transicoes_simplificadas.append(Transicao(origem, trans.simbolo, destino))
     
-    # Construir estados finais simplificados
-    #finais_simplificados = [obter_nome(estado) for estado in estados_finais_afd]
-    
     # Construir lista de estados simplificados
     estados_simplificados = [obter_nome(estado) for estado in estados_afd]
     

@@ -1,5 +1,3 @@
-
-
 class Transicao:
 
     def __init__(self, estado1, simbolo, estado2):

@@ -35,7 +35,3 @@ def criar_tabela_simbolos(tokens, posicoes=None):
             posicao = partes[2].strip()
             tabela.adicionar(lexema, tipo, posicao)
     return tabela
-# Exemplo:
-# tokens = ["<('a1','id')>", "<('21','num')>"]
-# tabela = criar_tabela_simbolos(tokens)
-# print(tabela)

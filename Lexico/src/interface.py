@@ -4,13 +4,11 @@ from tkinter import ttk, messagebox, filedialog
 def mostrar_interface_interativa(processar_callback):
     root = tk.Tk()
     root.title("Gerador de Analisadores Léxicos")
-    root.geometry("580x700")  # Aumentado para acomodar novos botões
+    root.geometry("580x700") 
 
-    # Frame para botões de carregamento
     frame_botoes = ttk.Frame(root)
     frame_botoes.pack(fill="x", padx=10, pady=5)
     
-    # Botão para carregar arquivo 
     def carregar_def():
         caminho = filedialog.askopenfilename(
             title="Selecione um arquivo de definição regular",
@@ -203,10 +201,9 @@ def mostrar_interface_interativa(processar_callback):
         def ao_analise_sintatica():
             try:
                 from main import realizar_analise_sintatica
-                resultado = realizar_analise_sintatica()
+                data = realizar_analise_sintatica()
                 
-                # Mostrar resultados em nova janela
-                janela_resultado = tk.Toplevel(resultado)
+                janela_resultado = tk.Toplevel(root)
                 janela_resultado.title("Resultado da Análise Sintática")
                 janela_resultado.geometry("600x400")
                 
@@ -214,15 +211,15 @@ def mostrar_interface_interativa(processar_callback):
                 texto.pack(fill="both", expand=True, padx=10, pady=10)
                 
                 texto.insert(tk.END, "Conjuntos FIRST:\n")
-                for nt, first in resultado["first"].items():
+                for nt, first in data["first"].items():
                     texto.insert(tk.END, f"{nt}: {first}\n")
                 
                 texto.insert(tk.END, "\nConjuntos FOLLOW:\n")
-                for nt, follow in resultado["follow"].items():
+                for nt, follow in data["follow"].items():
                     texto.insert(tk.END, f"{nt}: {follow}\n")
                 
                 texto.insert(tk.END, "\nResultado da análise: ")
-                texto.insert(tk.END, "Sucesso!" if resultado["resultado"] else "Erro!")
+                texto.insert(tk.END, "Sucesso!" if data["resultado"] else "Erro!")
                 
                 texto.config(state="disabled")
                 

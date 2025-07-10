@@ -1,0 +1,9 @@
+const inteiro C = 10;
+var x: inteiro;
+proc P;
+inicio
+fim;
+
+inicio
+  x := C + 1
+fim.

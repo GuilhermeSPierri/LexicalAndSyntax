@@ -13,7 +13,7 @@ class SyntaxAnalyzerSLR:
         self.canonical_collection = []
         self.action_table = {}
         self.goto_table = {}
-        self.productions_list = []  # Lista plana de todas as produções
+        self.productions_list = []
     
     def load_grammar(self, filename):
         """
@@ -110,7 +110,7 @@ class SyntaxAnalyzerSLR:
         # Garante que temos um símbolo inicial string
         if not self.start_symbol:
             raise ValueError("Símbolo inicial não definido")
-        elif isinstance(self.start_symbol, list):  # Correção adicional
+        elif isinstance(self.start_symbol, list):
             self.start_symbol = self.start_symbol[0]
     
     def compute_first(self):
@@ -262,14 +262,10 @@ class SyntaxAnalyzerSLR:
         raise RuntimeError(error_msg)
     
     def print_tables(self):
-        """Exibe as tabelas ACTION e GOTO formatadas"""
-        print("\nTabela ACTION:")
-        print("Estado\tSímbolo\tAção")
+
         for (state, symbol), action in self.action_table.items():
             print(f"{state}\t{symbol}\t{action}")
-        
-        print("\nTabela GOTO:")
-        print("Estado\tSímbolo\tDestino")
+
         for (state, symbol), dest in self.goto_table.items():
             print(f"{state}\t{symbol}\t{dest}")
 
@@ -285,11 +281,11 @@ class SyntaxAnalyzerSLR:
             token_type, token_value = current_token
             
             # Determinar símbolo para consulta na tabela
-            symbol = token_value
+            symbol = token_type
             
             # 1. Tentar encontrar ação usando valor do token
             action = self.action_table.get((state, symbol))
-            
+
             # 2. Se não encontrar, tentar usar tipo do token
             if action is None:
                 symbol = token_type
@@ -302,7 +298,7 @@ class SyntaxAnalyzerSLR:
                 for (s, sym), act in self.action_table.items():
                     if s == state:
                         expected_symbols.add(sym)
-                raise RuntimeError(
+                print(
                     f"Erro sintático no estado {state}: "
                     f"Token '{token_value}' inesperado. Esperados: {', '.join(expected_symbols)}"
                 )
