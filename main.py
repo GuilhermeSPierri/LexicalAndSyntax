@@ -146,47 +146,31 @@ def processar_entrada(er_text, def_text, teste_text):
     print(f"Tokens gravados em: tokens.txt")
     return tokens, tabela, afd_defsFinal
 
-tokens = []
-""" 
-    # Declaração de variável
-    ("var", "var"),
-    ("id", "x"),
-    (":", ":"),
-    ("inteiro", "inteiro"),
-    (";", ";"),
-    
-    # Comandos (mínimo: bloco vazio)
-    ("inicio", "inicio"),
-    ("fim", "fim"),
-    
-    # Ponto final
-    (".", "."),
-    
-    # Fim de entrada
-    ("$", "$") """
+def realizar_analise_sintatica():
+    tokens = []
+    with open('tokens.txt', 'r') as file:
+        for line in file:
+            line = line.replace('<', '').replace('>', '')
+            tup = ast.literal_eval(line.strip())
+            tokens.append(tup)
 
-with open('tokens.txt', 'r') as file:
-    for line in file:
-        line = line.replace('<', '').replace('>', '')
-        tup = ast.literal_eval(line.strip())
-        # agora tup é realmente ('a1', 'id')
-        tokens.append(tup)
+    print("Tokens para análise sintática:", tokens)
 
-print(tokens)
+    analisador = SyntaxAnalyzerSLR()
+    analisador.load_grammar("teste.txt")  # Arquivo com a gramática
+    analisador.compute_first()
+    analisador.compute_follow()
+    analisador.build_canonical_collection()
+    analisador.build_slr_table()
+    resultado = analisador.parse(tokens)
 
-############################# ANÁLISE SINTÁTICA #############################
-
-analisador = SyntaxAnalyzerSLR()
-analisador.load_grammar("teste.txt")  # Arquivo com a gramática
-analisador.compute_first()
-analisador.compute_follow()
-analisador.build_canonical_collection()
-analisador.build_slr_table()
-analisador.parse(tokens)
-
-
-print("First : ",  analisador.first_sets)
-print("Follow : ", analisador.follow_sets)
+    print("First:", analisador.first_sets)
+    print("Follow:", analisador.follow_sets)
+    return {
+        "first": analisador.first_sets,
+        "follow": analisador.follow_sets,
+        "resultado": resultado
+    }
 
 if __name__ == "__main__":
 

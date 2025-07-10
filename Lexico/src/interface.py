@@ -200,6 +200,42 @@ def mostrar_interface_interativa(processar_callback):
         btn_afd = ttk.Button(resultado, text="Visualizar AFD", command=visualizar_afd)
         btn_afd.pack(pady=10)
 
+        def ao_analise_sintatica():
+            try:
+                from main import realizar_analise_sintatica
+                resultado = realizar_analise_sintatica()
+                
+                # Mostrar resultados em nova janela
+                janela_resultado = tk.Toplevel(resultado)
+                janela_resultado.title("Resultado da Análise Sintática")
+                janela_resultado.geometry("600x400")
+                
+                texto = tk.Text(janela_resultado, wrap="word")
+                texto.pack(fill="both", expand=True, padx=10, pady=10)
+                
+                texto.insert(tk.END, "Conjuntos FIRST:\n")
+                for nt, first in resultado["first"].items():
+                    texto.insert(tk.END, f"{nt}: {first}\n")
+                
+                texto.insert(tk.END, "\nConjuntos FOLLOW:\n")
+                for nt, follow in resultado["follow"].items():
+                    texto.insert(tk.END, f"{nt}: {follow}\n")
+                
+                texto.insert(tk.END, "\nResultado da análise: ")
+                texto.insert(tk.END, "Sucesso!" if resultado["resultado"] else "Erro!")
+                
+                texto.config(state="disabled")
+                
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+        
+        btn_sintatico = ttk.Button(
+            resultado, 
+            text="Realizar Análise Sintática",
+            command=ao_analise_sintatica
+        )
+        btn_sintatico.pack(pady=10)
+
     # Ajuste ao_processar para passar o AFD para mostrar_resultado
     def ao_processar():
         er_text = text_er.get("1.0", tk.END).strip()
